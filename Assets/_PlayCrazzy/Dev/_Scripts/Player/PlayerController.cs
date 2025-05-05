@@ -26,10 +26,10 @@ public class PlayerController : MonoBehaviour
 
 
     //  Movement 
-    private float velocity;
+    [SaveableField] public float velocity;
     private float horizontal;
     private float vertical;
-    private Vector3 movementDirection;
+   [SaveableField] private Vector3 movementDirection;
     private Vector3 desiredVelocity;
 
     private void Awake()

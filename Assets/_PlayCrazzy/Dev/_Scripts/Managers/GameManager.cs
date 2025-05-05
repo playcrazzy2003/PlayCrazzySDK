@@ -7,7 +7,9 @@ public class GameManager : MonoBehaviour
     
     public static GameManager Instance;
     public PlayerController playerController { get; private set; }
+    public UiManager uiManager { get; private set; }
     public CameraController cameraController { get; private set; }
+    public EconomyManager economyManager { get; private set; }
 
     private void Awake()
     {
@@ -25,6 +27,8 @@ public class GameManager : MonoBehaviour
 
     void Initializetion()
     {
+        uiManager = FindObjectOfType<UiManager>();
+        economyManager = FindObjectOfType<EconomyManager>();
         playerController = FindObjectOfType<PlayerController>();
         cameraController = FindObjectOfType<CameraController>();
     }
