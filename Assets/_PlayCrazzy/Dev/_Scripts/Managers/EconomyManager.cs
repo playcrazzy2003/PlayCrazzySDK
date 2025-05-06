@@ -8,7 +8,7 @@ public class EconomyManager : MonoBehaviour
     public event Action OnMoneyUpdate;
 
     [SerializeField] TMP_Text moneyText;
-    [SaveableField] double totalMoney;
+    public double totalMoney {get; private set;}
 
     GameManager gameManager;
     UiManager uiManager;

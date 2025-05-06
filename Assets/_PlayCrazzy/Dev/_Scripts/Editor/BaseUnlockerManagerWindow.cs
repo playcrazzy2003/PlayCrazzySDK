@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEditor;
 
-public class BaseUnlockerManagerWindow : EditorWindow
+[CustomEditor(typeof(BaseUnlockManager))]
+public class BaseUnlockerManagerWindow : Editor
 {
-    private BaseUnlockerTable table;
+    private BaseUnlockManager table;
     private Vector2 scrollPos;
 
     private float colNoWidth = 40f;
@@ -11,115 +12,133 @@ public class BaseUnlockerManagerWindow : EditorWindow
     private float colNameWidth = 150f;
     private float colIconWidth = 80f;
     private float colCostWidth = 100f;
-    private float colSubRowWidth = 100f;
-    private const float splitterWidth = 5f;
 
+    private const float splitterWidth = 5f;
     private int draggingColumn = -1;
     private Rect[] columnRects;
 
-    [MenuItem("GameTools/Base Unlocker Manager")]
-    public static void ShowWindow()
+    private void OnEnable()
     {
-        GetWindow<BaseUnlockerManagerWindow>("Base Unlocker Manager");
+        table = (BaseUnlockManager)target;
+        if (table.entries == null)
+        {
+            table.entries = new System.Collections.Generic.List<BaseUnlockerEntry>();
+            Debug.Log("BaseUnlockManager: entries list initialized.");
+        }
     }
 
-    private void OnGUI()
+    public override void OnInspectorGUI()
     {
-        GUILayout.Space(10);
-        table = (BaseUnlockerTable)EditorGUILayout.ObjectField("Unlocker Table", table, typeof(BaseUnlockerTable),
-            false);
-        if (table == null) return;
+        if (table == null)
+            return;
 
-        GUILayout.Space(10);
+        serializedObject.Update();
+
+        GUILayout.Space(50);
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
 
         HandleResize();
         DrawHeader();
 
+        int mainRowCounter = 1;
         for (int i = 0; i < table.entries.Count; i++)
         {
-            DrawRow(table.entries[i], i);
+            DrawRow(table.entries[i], i, ref mainRowCounter, 0);
         }
 
         EditorGUILayout.EndScrollView();
-        GUILayout.Space(10);
+        GUILayout.Space(50f);
 
         if (GUILayout.Button("Add New Row", GUILayout.Height(30)))
         {
             table.entries.Add(new BaseUnlockerEntry());
+            Debug.Log("New main row added.");
         }
 
+        serializedObject.ApplyModifiedProperties();
         EditorUtility.SetDirty(table);
     }
 
-   private void DrawRow(BaseUnlockerEntry entry, int index, int indent = 0)
-{
-    EditorGUILayout.BeginHorizontal("box");
-    GUILayout.Space(indent * 15);
-
-    // Foldout to toggle visibility of sub-rows
-
-    // Base Unlocker Row fields
-    entry.currntIndex = EditorGUILayout.IntField(entry.currntIndex, GUILayout.Width(colNoWidth));
-    entry.baseUnlocker = (BaseUnlocker)EditorGUILayout.ObjectField(entry.baseUnlocker, typeof(BaseUnlocker), true, GUILayout.Width(colBaseUnlockerWidth));
-    entry.baseName = EditorGUILayout.TextField(entry.baseName, GUILayout.Width(colNameWidth));
-    entry.icon = (Sprite)EditorGUILayout.ObjectField(entry.icon, typeof(Sprite), false, GUILayout.Width(colIconWidth), GUILayout.Height(40));
-    entry.baseUnlockCost = EditorGUILayout.FloatField(entry.baseUnlockCost, GUILayout.Width(colCostWidth));
-    entry.showSubRows = EditorGUILayout.Foldout(entry.showSubRows, "Sub Rows", true);
-
-    // Remove row button
-    if (GUILayout.Button("X", GUILayout.Width(50)))
+    private void DrawRow(BaseUnlockerEntry entry, int index, ref int rowCounter, int indent,
+        BaseUnlockerEntry parent = null)
     {
+        EditorGUILayout.BeginHorizontal("box");
+        GUILayout.Space(indent * 40);
+
+        // Row number
+        string rowLabel = indent == 0 ? rowCounter.ToString() : "↳ " + rowCounter;
+        EditorGUILayout.LabelField(rowLabel, GUILayout.Width(colNoWidth));
+        rowCounter++;
+
+        // Fields
+        entry.baseUnlocker = (BaseUnlocker)EditorGUILayout.ObjectField(entry.baseUnlocker, typeof(BaseUnlocker), true,
+            GUILayout.Width(colBaseUnlockerWidth));
+        entry.baseName = EditorGUILayout.TextField(entry.baseName, GUILayout.Width(colNameWidth));
+        entry.icon = (Sprite)EditorGUILayout.ObjectField(entry.icon, typeof(Sprite), false,
+            GUILayout.Width(colIconWidth), GUILayout.Height(40));
+        entry.baseUnlockCost = EditorGUILayout.FloatField(entry.baseUnlockCost, GUILayout.Width(colCostWidth));
+        GUILayout.Space(40);
+        entry.showSubRows = EditorGUILayout.Foldout(entry.showSubRows, "Sub Rows", true);
+
+        // Delete Buttons
         if (indent == 0)
-            table.entries.RemoveAt(index);
-        EditorGUILayout.EndHorizontal();
-        return;
-    }
-
-    EditorGUILayout.EndHorizontal();
-
-    // If sub-rows are visible, draw them
-    if (entry.showSubRows)
-    {
-        for (int j = 0; j < entry.subRows.Count; j++)
         {
-            // Draw sub-row with adjusted indentation
-            DrawRow(entry.subRows[j], j, indent + 1);
+            if (GUILayout.Button("X", GUILayout.Width(25)))
+            {
+                table.entries.RemoveAt(index);
+                Debug.Log($"Removed main row at index {index}");
+                EditorGUILayout.EndHorizontal();
+                return;
+            }
+        }
+        else if (parent != null)
+        {
+            if (GUILayout.Button("-", GUILayout.Width(25)))
+            {
+                parent.subRows.RemoveAt(index);
+                Debug.Log($"Removed sub-row at index {index} from parent {parent.baseName}");
+                EditorGUILayout.EndHorizontal();
+                return;
+            }
+        }
 
-            // Add a remove button for each sub-row
+        EditorGUILayout.EndHorizontal();
+
+        // Sub-rows
+        if (entry.showSubRows)
+        {
+            if (entry.subRows == null)
+                entry.subRows = new System.Collections.Generic.List<BaseUnlockerEntry>();
+
+            int subRowCounter = 1;
+            for (int j = 0; j < entry.subRows.Count; j++)
+            {
+                DrawRow(entry.subRows[j], j, ref subRowCounter, indent + 1, entry);
+            }
+
+            // Add Sub-row
             EditorGUILayout.BeginHorizontal();
             GUILayout.Space((indent + 1) * 15);
-            if (GUILayout.Button("X", GUILayout.Width(50)))
+            if (GUILayout.Button("+", GUILayout.Width(25)))
             {
-                entry.subRows.RemoveAt(j);
-                break; // Break after removing to avoid index issues during iteration
+                entry.subRows.Add(new BaseUnlockerEntry());
+                Debug.Log($"Added sub-row to {entry.baseName}");
             }
+
             EditorGUILayout.EndHorizontal();
         }
-
-        // Add Sub Row Button
-        EditorGUILayout.BeginHorizontal();
-        GUILayout.Space((indent + 1) * 15);
-
-        // Add Sub Row button with width adjustment
-        if (GUILayout.Button("Add Sub Row", GUILayout.Width(colSubRowWidth)))
-        {
-            entry.subRows.Add(new BaseUnlockerEntry());
-        }
-        EditorGUILayout.EndHorizontal();
     }
-}
-
 
     private void DrawHeader()
     {
+        GUIStyle bold = new GUIStyle(EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
         GUILayout.Space(12);
-        GUILayout.Label("No.", GUILayout.Width(colNoWidth));
-        GUILayout.Label("BaseUnlocker", GUILayout.Width(colBaseUnlockerWidth));
-        GUILayout.Label("Name", GUILayout.Width(colNameWidth));
-        GUILayout.Label("Icon", GUILayout.Width(colIconWidth));
-        GUILayout.Label("Cost", GUILayout.Width(colCostWidth));
+        GUILayout.Label("No.", bold, GUILayout.Width(colNoWidth));
+        GUILayout.Label("BaseUnlocker", bold, GUILayout.Width(colBaseUnlockerWidth));
+        GUILayout.Label("Name", bold, GUILayout.Width(colNameWidth));
+        GUILayout.Label("Icon", bold, GUILayout.Width(colIconWidth));
+        GUILayout.Label("Cost", bold, GUILayout.Width(colCostWidth));
         GUILayout.Space(25);
         EditorGUILayout.EndHorizontal();
     }
@@ -130,15 +149,16 @@ public class BaseUnlockerManagerWindow : EditorWindow
             columnRects = new Rect[5];
 
         float x = 12;
-        columnRects[0] = new Rect(x + colNoWidth, 0, splitterWidth, position.height);
+        float height = 20f; // static height, since we don’t have dynamic headers
+        columnRects[0] = new Rect(x + colNoWidth, 0, splitterWidth, height);
         x += colNoWidth + splitterWidth;
-        columnRects[1] = new Rect(x + colBaseUnlockerWidth, 0, splitterWidth, position.height);
+        columnRects[1] = new Rect(x + colBaseUnlockerWidth, 0, splitterWidth, height);
         x += colBaseUnlockerWidth + splitterWidth;
-        columnRects[2] = new Rect(x + colNameWidth, 0, splitterWidth, position.height);
+        columnRects[2] = new Rect(x + colNameWidth, 0, splitterWidth, height);
         x += colNameWidth + splitterWidth;
-        columnRects[3] = new Rect(x + colIconWidth, 0, splitterWidth, position.height);
+        columnRects[3] = new Rect(x + colIconWidth, 0, splitterWidth, height);
         x += colIconWidth + splitterWidth;
-        columnRects[4] = new Rect(x + colCostWidth, 0, splitterWidth, position.height);
+        columnRects[4] = new Rect(x + colCostWidth, 0, splitterWidth, height);
 
         for (int i = 0; i < columnRects.Length; i++)
         {

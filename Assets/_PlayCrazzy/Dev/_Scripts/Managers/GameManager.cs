@@ -1,15 +1,23 @@
 using UnityEngine;
-
+using DG.Tweening;
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance;
+    
+    [Space(3)]
+    [Header("Public Obj References")]
+    public GameObject moneyBreak;
+    
+    [Space(3)]
+    [Header("References")]
     [SerializeField] Camera activeCamera;
     
     
-    public static GameManager Instance;
     public PlayerController playerController { get; private set; }
     public UiManager uiManager { get; private set; }
     public CameraController cameraController { get; private set; }
     public EconomyManager economyManager { get; private set; }
+    public BaseUnlockManager baseUnlockManager { get; private set; }
 
     private void Awake()
     {
@@ -31,6 +39,7 @@ public class GameManager : MonoBehaviour
         economyManager = FindObjectOfType<EconomyManager>();
         playerController = FindObjectOfType<PlayerController>();
         cameraController = FindObjectOfType<CameraController>();
+        baseUnlockManager = FindObjectOfType<BaseUnlockManager>();
     }
     
     
@@ -52,5 +61,44 @@ public class GameManager : MonoBehaviour
         playerController.playerControllerData.characterMovement.enabled = true;
         playerController.enabled = true;
         playerController.animationController.PlayAnimation(AnimType.Idle, 0);
+    }
+
+    public void SetObjectsStates(GameObject[] objects, bool state)
+    {
+        for (int i = 0; i < objects.Length; i++)
+        {
+            GameObject obj = objects[i];
+            if (obj != null)
+            {
+                obj.SetActive(!state);
+                if (state)
+                {
+                    Vector3 startSCALE = obj.transform.localScale;
+                    obj.transform.localScale = Vector3.zero;
+                    obj.transform.DOScale(startSCALE, .8f).SetEase(Ease.OutBounce);
+                }
+
+                obj.SetActive(state);
+            }
+        }
+    }
+
+    public void PlayParticles(ParticleSystem[] particles)
+    {
+        foreach (var particle in particles)
+        {
+            particle.Play();
+        }
+    }
+
+    public void SetObjectsState(GameObject objects, bool state)
+    {
+        if (objects.activeInHierarchy != state)
+            objects.SetActive(state);
+    }
+
+    public void PlayParticles(ParticleSystem particles)
+    {
+        particles.Play();
     }
 }
