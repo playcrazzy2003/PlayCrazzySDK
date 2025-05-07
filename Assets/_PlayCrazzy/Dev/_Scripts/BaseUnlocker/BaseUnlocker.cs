@@ -89,7 +89,7 @@ public class BaseUnlocker : MonoBehaviour
 
 
             // load saved game data
-            //LoadGame();
+            LoadGame();
             UpdateVisual();
         }
     }
@@ -189,6 +189,11 @@ public class BaseUnlocker : MonoBehaviour
 
             }
         }
+    }
+
+    void SetUpNextRow()
+    {
+        
     }
 
     void SaveGame()
