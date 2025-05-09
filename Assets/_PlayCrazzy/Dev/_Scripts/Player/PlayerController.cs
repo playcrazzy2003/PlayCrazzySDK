@@ -19,17 +19,15 @@ public class PlayerControllerData
 
 public class PlayerController : MonoBehaviour
 {
-    [Tooltip("Player DataRefs")] 
-    public PlayerControllerData playerControllerData;
-    [HideInInspector]
-    public AnimationController animationController;
+    [Tooltip("Player DataRefs")] public PlayerControllerData playerControllerData;
+    [HideInInspector] public AnimationController animationController;
 
 
     //  Movement 
     [SaveableField] public float velocity;
+    [SaveableField] private Vector3 movementDirection;
     private float horizontal;
     private float vertical;
-   [SaveableField] private Vector3 movementDirection;
     private Vector3 desiredVelocity;
 
     private void Awake()
@@ -85,12 +83,13 @@ public class PlayerController : MonoBehaviour
 
     public void FrizePlayer()
     {
-        
     }
+
     public bool IsMoving()
     {
         return desiredVelocity.sqrMagnitude > 0.0001f;
     }
+
     public float GetVelocity()
     {
         velocity = new Vector2(playerControllerData.joystick.Horizontal, playerControllerData.joystick.Vertical)
@@ -106,7 +105,10 @@ public class PlayerController : MonoBehaviour
     {
         if (animationController == null)
         {
-            Debug.LogError("No animation controller found"); return;}
+            Debug.LogError("No animation controller found");
+            return;
+        }
+
         if (IsMoving())
         {
             animationController.PlayAnimation(AnimType.Move);

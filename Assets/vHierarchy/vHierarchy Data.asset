@@ -31,10 +31,13 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-10823edf2ce749e44a59298abb5fd5e2-1347241225-0
         - globalObjectIdString: GlobalObjectId_V1-2-10823edf2ce749e44a59298abb5fd5e2-1280791155265351413-427268936
         - globalObjectIdString: GlobalObjectId_V1-2-10823edf2ce749e44a59298abb5fd5e2-770223-0
+        - globalObjectIdString: GlobalObjectId_V1-2-10823edf2ce749e44a59298abb5fd5e2-10802862854711893608-1919848036
         values:
         - colorIndex: 9
           iconNameOrGuid: 
         - colorIndex: 7
           iconNameOrGuid: 
         - colorIndex: 5
+          iconNameOrGuid: 
+        - colorIndex: 0
           iconNameOrGuid: 

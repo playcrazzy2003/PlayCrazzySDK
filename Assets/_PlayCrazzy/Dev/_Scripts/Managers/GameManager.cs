@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
     [Space(3)]
     [Header("References")]
     [SerializeField] Camera activeCamera;
-    
+    [SerializeField] ItemsData itemData; 
     
     public PlayerController playerController { get; private set; }
     public UiManager uiManager { get; private set; }
@@ -40,6 +40,8 @@ public class GameManager : MonoBehaviour
         playerController = FindObjectOfType<PlayerController>();
         cameraController = FindObjectOfType<CameraController>();
         baseUnlockManager = FindObjectOfType<BaseUnlockManager>();
+        
+        itemData.SetAllVelus();
     }
     
     
