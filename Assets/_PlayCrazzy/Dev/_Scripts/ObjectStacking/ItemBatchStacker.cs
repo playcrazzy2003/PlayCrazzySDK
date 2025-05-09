@@ -15,7 +15,7 @@ public class ItemBatchStacker : MonoBehaviour
 
     [Header("Stacker Settings")] public ItemType itemType;
     public BatchStackerType stackerType;
-    public int maxCapacity;
+    [SerializeField] private int maxCapacity;
 
     public List<Transform> itemSlots = new List<Transform>();
 

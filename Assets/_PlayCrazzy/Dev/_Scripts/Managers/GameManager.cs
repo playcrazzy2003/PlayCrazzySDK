@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
     public CameraController cameraController { get; private set; }
     public EconomyManager economyManager { get; private set; }
     public BaseUnlockManager baseUnlockManager { get; private set; }
+    public WorkerManager workerManager { get; private set; }
 
     private void Awake()
     {
@@ -40,6 +41,7 @@ public class GameManager : MonoBehaviour
         playerController = FindObjectOfType<PlayerController>();
         cameraController = FindObjectOfType<CameraController>();
         baseUnlockManager = FindObjectOfType<BaseUnlockManager>();
+        workerManager = FindObjectOfType<WorkerManager>();
         
         itemData.SetAllVelus();
     }
