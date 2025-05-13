@@ -125,4 +125,24 @@ public class ItemBatchStacker : MonoBehaviour
             }
         }
     }
+    public Items GiveItemOfType(ItemType type)
+    {
+        for (int i = currentItems.Count - 1; i >= 0; i--)
+        {
+            if (currentItems[i].itemType == type)
+            {
+                var item = currentItems[i];
+                currentItems.RemoveAt(i);
+                //ReloadItemsVisuals(); // reposition visuals
+                return item;
+            }
+        }
+        return null;
+    }
+    public Vector3 GetClosestPoint(Vector3 from)
+    {
+        // optionally use collider.ClosestPoint if more complex shape
+        return transform.position;
+    }
+
 }

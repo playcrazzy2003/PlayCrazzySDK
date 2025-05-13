@@ -110,6 +110,9 @@ public class ItemBatchHandler : MonoBehaviour
 
         return null;
     }
+    
+    
+
     private void ReloadItemsVisuals()
     {
         for (int i = 0; i < currentItems.Count; i++)
@@ -147,6 +150,7 @@ public class ItemBatchHandler : MonoBehaviour
 
         }
     }
+    
 
     private IEnumerator GiveItemsRoutine(ItemBatchStacker itemBatchStacker)
     {
@@ -229,4 +233,6 @@ public class ItemBatchHandler : MonoBehaviour
         item.localPosition = Vector3.zero;
         item.localRotation = Quaternion.identity;
     }
+    
+    
 }

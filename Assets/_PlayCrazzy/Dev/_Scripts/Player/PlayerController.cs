@@ -4,6 +4,7 @@ using UnityEngine;
 [System.Serializable]
 public class PlayerControllerData
 {
+    public FloatingJoystick joystickPanel;
     public FloatingJoystick joystick;
     public float rotationRate = 540.0f;
     public float maxSpeed = 5f;

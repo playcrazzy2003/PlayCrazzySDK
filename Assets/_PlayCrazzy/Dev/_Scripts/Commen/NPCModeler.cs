@@ -11,13 +11,11 @@ public class NPCModeler : MonoBehaviour
     public NavMeshAgent agent;
     public Transform visual;
 
-    [Header("Push Settings")]
-    public float pushSpeed = 5f;
+    [Header("Push Settings")] public float pushSpeed = 5f;
     public float maxElasticDistance = 1.5f;
     public float returnSpeed = 4f;
 
-    [Header("Wobble Settings")]
-    public float wobbleSpeed = 8f;
+    [Header("Wobble Settings")] public float wobbleSpeed = 8f;
     public float wobbleAmount = 10f;
 
     private Vector3 originalLocalPos;
@@ -96,10 +94,8 @@ public class NPCModeler : MonoBehaviour
         }
     }
 
-    [Header("Movement Settings")]
-    public float defaultStoppingDistance = 0.5f;
-
-    [Button("Yo nigwa")]
+    [Header("Movement Settings")] public float defaultStoppingDistance = 0.5f;
+    
     public void MoveTo(Vector3 target, Action onArrive = null, float? customStoppingDistance = null)
     {
         float stoppingDistanceToUse = customStoppingDistance ?? defaultStoppingDistance;
@@ -111,8 +107,17 @@ public class NPCModeler : MonoBehaviour
 
     private IEnumerator CheckArrivalCoroutine(Action onArrive)
     {
-        while (!agent.pathPending && agent.remainingDistance > agent.stoppingDistance)
+        // Wait until path is fully calculated
+        while (agent.pathPending)
             yield return null;
+
+        // Wait until agent reaches close enough to the destination
+        while (agent.remainingDistance > agent.stoppingDistance || agent.hasPath == false)
+        {
+            yield return null;
+        }
+
+        Debug.Log($"Arrived: remainingDistance = {agent.remainingDistance}, stoppingDistance = {agent.stoppingDistance}");
 
         onArrive?.Invoke();
     }
